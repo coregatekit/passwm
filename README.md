@@ -13,10 +13,12 @@ A CLI-based password management tool built with Rust that lets you securely stor
 - **Encryption** – All passwords are encrypted at rest using strong symmetric encryption.
 - **Master Password** – Protect your vault with a single master password.
 
-## Software Design
+## Planned Software Design
+
+> **Note:** The Rust implementation has not been added to the repository yet. The module layout and architecture below describe the intended design.
 
 ```
-passwm/
+passwm/             (planned)
 ├── src/
 │   ├── main.rs          # CLI entry point and command routing
 │   ├── cli.rs           # CLI argument and subcommand definitions
@@ -43,22 +45,31 @@ User Input (CLI)
       └──► storage.rs ──► Reads / writes the encrypted vault file
 ```
 
-The vault is stored as a single encrypted file on disk. The master password is used to derive an encryption key (via a key-derivation function), which is then used to encrypt and decrypt the vault contents. No plaintext passwords are ever written to disk.
+Design goal: The vault will be stored as a single encrypted file on disk. The master password will be used to derive an encryption key (via a key-derivation function), which will then be used to encrypt and decrypt the vault contents. Plaintext passwords are not intended to be written to disk.
 
 ## Installation
 
-> **Requirements:** [Rust](https://www.rust-lang.org/tools/install) (stable toolchain)
+> **Note:** The Rust implementation of `passwm` is not yet published in this repository. There is no installable CLI binary at this time; the layout and commands shown below describe the planned design. Installation instructions will be added once the Rust sources and `Cargo.toml` are available.
 
-```bash
-# Clone the repository
-git clone https://github.com/coregatekit/passwm.git
-cd passwm
+<!--
+Planned installation options (once the Rust project is added):
 
-# Build and install
-cargo install --path .
-```
+- From source:
+  ```bash
+  git clone https://github.com/coregatekit/passwm.git
+  cd passwm
+  cargo install --path .
+  ```
 
-## Usage
+- From crates.io (planned):
+  ```bash
+  cargo install passwm
+  ```
+-->
+
+## Planned Usage
+
+> **Note:** The following examples show the target CLI syntax once the tool is implemented. They do not reflect working commands in the current repository.
 
 ```bash
 # Add a new password entry
