@@ -100,4 +100,12 @@ mod tests {
       let encrypted = encrypt(&key, b"my secret data").unwrap();
       assert!(decrypt(&wrong_key, &encrypted).is_err()); // -> decryption with wrong key should fail
   }
+
+  #[test]
+  fn test_decrypt_fails_with_tampered_ciphertext() {
+      let key = [42u8; KEY_LEN];
+      let mut encrypted = encrypt(&key, b"be my little secret").unwrap();
+      encrypted[15] ^= 0xFF; // Tamper with the ciphertext
+      assert!(decrypt(&key, &encrypted).is_err()); // -> decryption of tampered ciphertext should fail
+  }
 }
