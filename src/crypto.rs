@@ -46,6 +46,13 @@ pub fn decrypt(key: &[u8; KEY_LEN], data: &[u8]) -> Result<Vec<u8>> {
     cipher.decrypt(nonce, ciphertext).map_err(|_| PasswmError::DecryptionError)
 }
 
+/// Generates a random salt for key derivation
+pub fn generate_salt() -> [u8; SALT_LEN] {
+    let mut salt = [0u8; SALT_LEN];
+    OsRng.fill_bytes(&mut salt);
+    salt
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
