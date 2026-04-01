@@ -92,4 +92,12 @@ mod tests {
       let decrypted = decrypt(&key, &encrypted).unwrap();
       assert_eq!(decrypted, plaintext);
   }
+
+  #[test]
+  fn test_decrypt_fails_with_wrong_key() {
+      let key = [42u8; KEY_LEN];
+      let wrong_key = [96u8; KEY_LEN];
+      let encrypted = encrypt(&key, b"my secret data").unwrap();
+      assert!(decrypt(&wrong_key, &encrypted).is_err()); // -> decryption with wrong key should fail
+  }
 }
