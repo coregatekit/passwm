@@ -108,4 +108,11 @@ mod tests {
       encrypted[15] ^= 0xFF; // Tamper with the ciphertext
       assert!(decrypt(&key, &encrypted).is_err()); // -> decryption of tampered ciphertext should fail
   }
+
+  #[test]
+  fn test_generate_salt_is_random() {
+      let salt1 = generate_salt();
+      let salt2 = generate_salt();
+      assert_ne!(salt1, salt2); // -> generated salts should be different each time
+  }
 }
