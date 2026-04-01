@@ -69,4 +69,13 @@ mod tests {
     let ct2 = encrypt(&key, plaintext).unwrap();
     assert_ne!(ct1, ct2); // -> same plaintext and key should yield different ciphertexts each time
   }
+
+  #[test]
+  fn test_encrypt_decrypt_roundtrip() {
+      let key = [42u8; KEY_LEN];
+      let plaintext = b"my secret data";
+      let encrypted = encrypt(&key, plaintext).unwrap();
+      let decrypted = decrypt(&key, &encrypted).unwrap();
+      assert_eq!(plaintext, &decrypted);
+  }
 }
