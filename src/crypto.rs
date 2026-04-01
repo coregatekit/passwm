@@ -6,6 +6,13 @@ use crate::error::{PasswmError, Result};
 pub const KEY_LEN: usize = 32; // 256-bit key
 pub const SALT_LEN: usize = 16;
 
+pub fn derive_key(master_password: &str, salt: &[u8]) -> Result<Zeroizing<[u8; KEY_LEN]>> {
+    let mut key = Zeroizing::new([0u8; KEY_LEN]);
+    Argon2::default().hash_password_into(master_password.as_bytes(), salt, key.as_mut())
+    .map_err(|e| PasswmError::EncryptionError(e.to_string()))?;
+    Ok(key)
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
