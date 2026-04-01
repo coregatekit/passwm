@@ -24,4 +24,12 @@ mod tests {
       let key2 = derive_key("master123", &salt).unwrap();
       assert_eq!(*key1, *key2);
   }
+
+  #[test]
+  fn test_derive_key_differs_with_different_password() {
+      let salt = [0u8; SALT_LEN];
+      let key1 = derive_key("password_a", &salt).unwrap();
+      let key2 = derive_key("password_b", &salt).unwrap();
+      assert_ne!(*key1, *key2);
+  }
 }
