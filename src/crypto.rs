@@ -32,6 +32,20 @@ pub fn encrypt(key: &[u8; KEY_LEN], plaintext: &[u8]) -> Result<Vec<u8>> {
     Ok(output)
 }
 
+/// Decrypt ciphertext using AES-256-GCM with the derived key
+/// Expects input format: [nonce 12 bytes || ciphertext]
+pub fn decrypt(key: &[u8; KEY_LEN], data: &[u8]) -> Result<Vec<u8>> {
+    if data.len() < NONCE_LEN {
+      return Err(PasswmError::DecryptionError);
+    }
+
+    let (nonce_bytes, ciphertext) = data.split_at(NONCE_LEN);
+    let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
+    let nonce = Nonce::from_slice(nonce_bytes);
+
+    cipher.decrypt(nonce, ciphertext).map_err(|_| PasswmError::DecryptionError)
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -76,6 +90,6 @@ mod tests {
       let plaintext = b"my secret data";
       let encrypted = encrypt(&key, plaintext).unwrap();
       let decrypted = decrypt(&key, &encrypted).unwrap();
-      assert_eq!(plaintext, &decrypted);
+      assert_eq!(decrypted, plaintext);
   }
 }
