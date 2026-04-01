@@ -17,7 +17,7 @@ A CLI-based password management tool built with Rust that lets you securely stor
 
 > **Note:** The Rust implementation has not been added to the repository yet. The module layout and architecture below describe the intended design.
 
-```
+```text
 passwm/             (planned)
 ├── src/
 │   ├── main.rs          # CLI entry point and command routing
@@ -31,7 +31,7 @@ passwm/             (planned)
 
 ### Architecture Overview
 
-```
+```text
 User Input (CLI)
       │
       ▼
