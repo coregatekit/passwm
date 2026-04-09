@@ -64,4 +64,10 @@ mod tests {
         vault.add(make_entry("github", "alice", "pass1")).unwrap();
         assert!(vault.add(make_entry("github", "bob", "pass2")).is_err());
     }
+
+    #[test]
+    fn test_get_nonexistent_returns_error() {
+        let vault = Vault::new();
+        assert!(vault.get("nonexistent").is_err());
+    }
 }
