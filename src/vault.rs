@@ -137,4 +137,10 @@ mod tests {
         vault.delete("github").unwrap();
         assert!(vault.get("github").is_err());
     }
+
+    #[test]
+    fn test_delete_nonexistent_fails() {
+        let mut vault = Vault::new();
+        assert!(vault.delete("github").is_err());
+    }
 }
