@@ -135,4 +135,15 @@ mod tests {
         assert!(!raw_str.contains("g00gl3pass")); // -> password should not be in plaintext
         assert!(!raw_str.contains("alice")); // -> username should not be in plaintext
     }
+
+    #[test]
+    fn test_load_fails_with_wrong_password() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("vault.pwm");
+
+        save_vault(&make_vault_with_entries(), &path, "correct_password").unwrap();
+        let result = load_vault(&path, "wrong_password");
+
+        assert!(result.is_err()); // -> loading with wrong password should fail
+    }
 }
