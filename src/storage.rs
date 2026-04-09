@@ -98,17 +98,25 @@ mod tests {
 
     #[test]
     fn test_save_and_load_roundtrip() {
-        // Arrange
         let dir = tempdir().unwrap();
         let path = dir.path().join("vault.pwm");
         let vault = make_vault_with_entries();
         let password = "master_password";
 
-        // Act
         save_vault(&vault, &path, password).unwrap();
         let loaded = load_vault(&path, password).unwrap();
 
-        // Assert
         assert_eq!(vault.entries, loaded.entries);
+    }
+
+    #[test]
+    fn test_save_creates_file_on_disk() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("vault.pwm");
+        assert!(!path.exists());
+
+        save_vault(&Vault::new(), &path, "pass").unwrap();
+
+        assert!(path.exists());
     }
 }
