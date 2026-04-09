@@ -19,6 +19,13 @@ impl Vault {
     }
 
     pub fn add(&mut self, entry: PasswordEntry) -> Result<()> {
+        if self.entries.iter().any(|e| e.service == entry.service) {
+            return Err(PasswmError::NotFound(format!(
+                "Entry for '{}' already exists",
+                entry.service
+            )));
+        }
+        self.entries.push(entry);
         Ok(())
     }
 
