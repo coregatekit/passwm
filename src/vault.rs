@@ -8,7 +8,7 @@ pub struct PasswordEntry {
     pub password: String, // plaintext in memory will be encrypted on save
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Vault {
     pub entries: Vec<PasswordEntry>,
 }

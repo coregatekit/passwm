@@ -189,4 +189,33 @@ mod tests {
 
         assert!(loaded.entries.is_empty());
     }
+
+    #[test]
+    fn test_overwrite_existing_vault() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("vault.pwm");
+
+        let mut vault1 = Vault::new();
+        vault1
+            .add(PasswordEntry {
+                service: "github".to_string(),
+                username: "alice".to_string(),
+                password: "old_pass".to_string(),
+            })
+            .unwrap();
+        save_vault(&vault1, &path, "master").unwrap();
+
+        let mut vault2 = vault1.clone();
+        vault2
+            .add(PasswordEntry {
+                service: "google".to_string(),
+                username: "alice".to_string(),
+                password: "new_pass".to_string(),
+            })
+            .unwrap();
+        save_vault(&vault2, &path, "master").unwrap();
+
+        let loaded = load_vault(&path, "master").unwrap();
+        assert_eq!(loaded.entries.len(), 2);
+    }
 }
