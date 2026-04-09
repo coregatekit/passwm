@@ -87,4 +87,14 @@ mod tests {
         assert_eq!(list.len(), 2);
         assert!(list.iter().all(|(_, _)| true)); // passwords not exposed
     }
+
+    #[test]
+    fn test_update_password() {
+        let mut vault = Vault::new();
+        vault.add(make_entry("github", "alice", "old")).unwrap();
+        vault
+            .update("github", None, Some("new_pass".to_string()))
+            .unwrap();
+        assert_eq!(vault.get("github").unwrap().password, "new_pass");
+    }
 }
