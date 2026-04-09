@@ -1,4 +1,18 @@
+use std::path::Path;
+
+use base64::{Engine, engine::general_purpose::STANDARD as BASE64};
 use serde::{Deserialize, Serialize};
+
+use crate::{
+    crypto::{self, encrypt},
+    error::{PasswmError, Result},
+    vault::Vault,
+};
+
+// ──────  VaultFile structure ─────────────────────────────────────
+// Json format for storing the vault on disk
+// salt         : random 16 bytes (base64-encoded) used for key derivation
+// ciphertext   : [nonce(12B) | encrypted_vault | auth_tag(16B)] (base64-encoded)
 
 #[derive(Serialize, Deserialize)]
 struct VaultFile {
@@ -6,8 +20,32 @@ struct VaultFile {
     ciphertext: String,
 }
 
+// ──────  Public API for storage ─────────────────────────────────────
+
+/// Encrypt vault and save to disk
+/// Generate new salt every time to ensure different ciphertexts for the same vault and password
+pub fn save_vault(vault: &Vault, path: &Path, master_password: &str) -> Result<()> {
+    let plaintext = serde_json::to_vec(vault)?;
+
+    let salt = crypto::generate_salt();
+    let key = crypto::derive_key(master_password, &salt)?;
+
+    let ciphertext = encrypt(&key, &plaintext)?;
+
+    let vault_file = VaultFile {
+        salt: BASE64.encode(salt),
+        ciphertext: BASE64.encode(&ciphertext),
+    };
+
+    let file_bytes = serde_json::to_vec(&vault_file)?;
+    std::fs::write(path, file_bytes).map_err(|e| PasswmError::StorageError(e.to_string()))?;
+
+    Ok(())
+}
+// ────────────────────────────────────────────────────────────────────
 #[cfg(test)]
 mod tests {
+    use super::*;
     use tempfile::tempdir;
 
     use crate::vault::{PasswordEntry, Vault};
