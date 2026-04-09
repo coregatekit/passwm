@@ -57,4 +57,11 @@ mod tests {
         assert_eq!(entry.username, "alice");
         assert_eq!(entry.password, "s3cr3t");
     }
+
+    #[test]
+    fn test_add_duplicate_service_fails() {
+        let mut vault = Vault::new();
+        vault.add(make_entry("github", "alice", "pass1")).unwrap();
+        assert!(vault.add(make_entry("github", "bob", "pass2")).is_err());
+    }
 }
