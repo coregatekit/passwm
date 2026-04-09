@@ -1,5 +1,5 @@
 use crate::error::{PasswmError, Result};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, ser};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PasswordEntry {
@@ -41,6 +41,29 @@ impl Vault {
             .iter()
             .map(|e| (e.service.as_str(), e.username.as_str()))
             .collect()
+    }
+
+    pub fn update(
+        &mut self,
+        service: &str,
+        username: Option<String>,
+        password: Option<String>,
+    ) -> Result<()> {
+        let entry = self
+            .entries
+            .iter_mut()
+            .find(|e| e.service == service)
+            .ok_or_else(|| PasswmError::NotFound(service.to_string()))?;
+
+        if let Some(u) = username {
+            entry.username = u;
+        }
+        if let Some(p) = password {
+            entry.password = p;
+        }
+
+        println!("🟢 {} updated successfully!", service);
+        Ok(())
     }
 }
 
