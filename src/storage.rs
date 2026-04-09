@@ -146,4 +146,20 @@ mod tests {
 
         assert!(result.is_err()); // -> loading with wrong password should fail
     }
+
+    #[test]
+    fn test_load_fails_with_tampered_file() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("vault.pwm");
+
+        save_vault(&make_vault_with_entries(), &path, "master").unwrap();
+
+        let mut content: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+        content["ciphertext"] = serde_json::Value::String("aW52YWxpZGRhdGE=".to_string());
+        std::fs::write(&path, serde_json::to_vec(&content).unwrap()).unwrap();
+
+        let result = load_vault(&path, "master");
+        assert!(result.is_err()); // -> loading tampered file should fail
+    }
 }
