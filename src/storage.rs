@@ -4,7 +4,7 @@ use base64::{Engine, engine::general_purpose::STANDARD as BASE64};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    crypto::{self, encrypt},
+    crypto::{self, KEY_LEN, encrypt},
     error::{PasswmError, Result},
     vault::Vault,
 };
@@ -42,7 +42,34 @@ pub fn save_vault(vault: &Vault, path: &Path, master_password: &str) -> Result<(
 
     Ok(())
 }
+
+/// Load from disk and decrypt into Vault
+pub fn load_vault(path: &Path, master_password: &str) -> Result<Vault> {
+    let file_bytes = std::fs::read(path).map_err(|e| PasswmError::StorageError(e.to_string()))?;
+
+    let vault_file: VaultFile = serde_json::from_slice(&file_bytes)?;
+
+    let salt = BASE64
+        .decode(&vault_file.salt)
+        .map_err(|e| PasswmError::StorageError(e.to_string()))?;
+    let ciphertext = BASE64
+        .decode(&vault_file.ciphertext)
+        .map_err(|e| PasswmError::StorageError(e.to_string()))?;
+
+    let key = crypto::derive_key(master_password, &salt)?;
+    let key_array: &[u8; KEY_LEN] = key
+        .as_ref()
+        .try_into()
+        .map_err(|_| PasswmError::DecryptionError)?;
+
+    let plaintext = crypto::decrypt(key_array, &ciphertext)?;
+
+    let vault: Vault = serde_json::from_slice(&plaintext)?;
+
+    Ok(vault)
+}
 // ────────────────────────────────────────────────────────────────────
+
 #[cfg(test)]
 mod tests {
     use super::*;
