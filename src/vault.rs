@@ -120,4 +120,12 @@ mod tests {
             .unwrap();
         assert_eq!(vault.get("github").unwrap().password, "new_pass");
     }
+
+    #[test]
+    fn test_delete_entry() {
+        let mut vault = Vault::new();
+        vault.add(make_entry("github", "alice", "pass")).unwrap();
+        vault.delete("github").unwrap();
+        assert!(vault.get("github").is_err());
+    }
 }
