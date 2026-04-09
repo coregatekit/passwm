@@ -1,3 +1,4 @@
+use crate::error::{PasswmError, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -15,6 +16,17 @@ pub struct Vault {
 impl Vault {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn add(&mut self, entry: PasswordEntry) -> Result<()> {
+        Ok(())
+    }
+
+    pub fn get(&self, service: &str) -> Result<&PasswordEntry> {
+        self.entries
+            .iter()
+            .find(|e| e.service == service)
+            .ok_or_else(|| PasswmError::NotFound(service.to_string()))
     }
 }
 
