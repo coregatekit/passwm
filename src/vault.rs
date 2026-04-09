@@ -1,5 +1,5 @@
 use crate::error::{PasswmError, Result};
-use serde::{Deserialize, Serialize, ser};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PasswordEntry {
