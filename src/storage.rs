@@ -178,4 +178,15 @@ mod tests {
         let bytes2 = std::fs::read(&path2).unwrap();
         assert_ne!(bytes1, bytes2); // different ciphertext
     }
+
+    #[test]
+    fn test_save_and_load_empty_vault() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("vault.pwm");
+
+        save_vault(&Vault::new(), &path, "pass").unwrap();
+        let loaded = load_vault(&path, "pass").unwrap();
+
+        assert!(loaded.entries.is_empty());
+    }
 }
