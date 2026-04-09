@@ -35,6 +35,13 @@ impl Vault {
             .find(|e| e.service == service)
             .ok_or_else(|| PasswmError::NotFound(service.to_string()))
     }
+
+    pub fn list(&self) -> Vec<(&str, &str)> {
+        self.entries
+            .iter()
+            .map(|e| (e.service.as_str(), e.username.as_str()))
+            .collect()
+    }
 }
 
 #[cfg(test)]
