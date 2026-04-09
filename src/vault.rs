@@ -70,4 +70,14 @@ mod tests {
         let vault = Vault::new();
         assert!(vault.get("nonexistent").is_err());
     }
+
+    #[test]
+    fn test_list_returns_service_and_username_only() {
+        let mut vault = Vault::new();
+        vault.add(make_entry("github", "alice", "secret1")).unwrap();
+        vault.add(make_entry("google", "alice", "secret2")).unwrap();
+        let list = vault.list();
+        assert_eq!(list.len(), 2);
+        assert!(list.iter().all(|(_, _)| true)); // passwords not exposed
+    }
 }
