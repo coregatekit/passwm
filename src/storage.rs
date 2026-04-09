@@ -162,4 +162,20 @@ mod tests {
         let result = load_vault(&path, "master");
         assert!(result.is_err()); // -> loading tampered file should fail
     }
+
+    #[test]
+    fn test_each_save_produces_different_bytes() {
+        // every time on save -> should generate new salt -> ciphertext should differ even for same vault and password
+        let dir = tempdir().unwrap();
+        let path1 = dir.path().join("vault1.pwm");
+        let path2 = dir.path().join("vault2.pwm");
+        let vault = make_vault_with_entries();
+
+        save_vault(&vault, &path1, "same_password").unwrap();
+        save_vault(&vault, &path2, "same_password").unwrap();
+
+        let bytes1 = std::fs::read(&path1).unwrap();
+        let bytes2 = std::fs::read(&path2).unwrap();
+        assert_ne!(bytes1, bytes2); // different ciphertext
+    }
 }
