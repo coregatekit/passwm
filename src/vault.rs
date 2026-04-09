@@ -74,6 +74,16 @@ impl Vault {
         }
         return Ok(());
     }
+
+    pub fn search(&self, query: &str) -> Vec<&PasswordEntry> {
+        let q = query.to_lowercase();
+        self.entries
+            .iter()
+            .filter(|e| {
+                e.service.to_lowercase().contains(&q) || e.username.to_lowercase().contains(&q)
+            })
+            .collect()
+    }
 }
 
 #[cfg(test)]
