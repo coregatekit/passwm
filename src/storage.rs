@@ -119,4 +119,20 @@ mod tests {
 
         assert!(path.exists());
     }
+
+    #[test]
+    fn test_saved_file_is_not_plaintext() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("vault.pwm");
+        let vault = make_vault_with_entries();
+
+        save_vault(&vault, &path, "master_password").unwrap();
+
+        let raw_bytes = std::fs::read(&path).unwrap();
+        let raw_str = String::from_utf8_lossy(&raw_bytes);
+
+        assert!(!raw_str.contains("s3cr3t")); // -> password should not be in plaintext
+        assert!(!raw_str.contains("g00gl3pass")); // -> password should not be in plaintext
+        assert!(!raw_str.contains("alice")); // -> username should not be in plaintext
+    }
 }
