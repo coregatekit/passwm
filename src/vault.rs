@@ -17,3 +17,25 @@ impl Vault {
         Self::default()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::vault::{PasswordEntry, Vault};
+
+    fn make_entry(service: &str, username: &str, password: &str) -> PasswordEntry {
+        PasswordEntry {
+            service: service.to_string(),
+            username: username.to_string(),
+            password: password.to_string(),
+        }
+    }
+
+    #[test]
+    fn test_add_and_get_entry() {
+        let mut vault = Vault::new();
+        vault.add(make_entry("github", "alice", "s3cr3t")).unwrap();
+        let entry = vault.get("github").unwrap();
+        assert_eq!(entry.username, "alice");
+        assert_eq!(entry.password, "s3cr3t");
+    }
+}
