@@ -68,6 +68,11 @@ pub fn load_vault(path: &Path, master_password: &str) -> Result<Vault> {
 
     Ok(vault)
 }
+
+/// Check if vault file exists on disk
+pub fn vault_exists(path: &Path) -> bool {
+    path.exists()
+}
 // ────────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
