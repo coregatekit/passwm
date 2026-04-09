@@ -65,6 +65,15 @@ impl Vault {
         println!("🟢 {} updated successfully!", service);
         Ok(())
     }
+
+    pub fn delete(&mut self, service: &str) -> Result<()> {
+        let before = self.entries.len();
+        self.entries.retain(|e| e.service != service);
+        if self.entries.len() == before {
+            return Err(PasswmError::NotFound(service.to_string()));
+        }
+        return Ok(());
+    }
 }
 
 #[cfg(test)]
