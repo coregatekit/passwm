@@ -143,4 +143,14 @@ mod tests {
         let mut vault = Vault::new();
         assert!(vault.delete("github").is_err());
     }
+
+    #[test]
+    fn test_search_by_service() {
+        let mut vault = Vault::new();
+        vault.add(make_entry("github", "alice", "p1")).unwrap();
+        vault.add(make_entry("gitlab", "bob", "p2")).unwrap();
+        vault.add(make_entry("google", "alice", "p3")).unwrap();
+        let results = vault.search("git");
+        assert_eq!(results.len(), 2);
+    }
 }
