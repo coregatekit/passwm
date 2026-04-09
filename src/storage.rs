@@ -218,4 +218,21 @@ mod tests {
         let loaded = load_vault(&path, "master").unwrap();
         assert_eq!(loaded.entries.len(), 2);
     }
+
+    // ──────  vault_exists ─────────────────────────────────────
+
+    #[test]
+    fn test_vault_exists_returns_false_when_no_file() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("vault.pwm");
+        assert!(!vault_exists(&path));
+    }
+
+    #[test]
+    fn test_vault_exists_return_true_after_save() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("vault.pwm");
+        save_vault(&Vault::new(), &path, "pass").unwrap();
+        assert!(vault_exists(&path));
+    }
 }
