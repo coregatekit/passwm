@@ -58,4 +58,12 @@ mod test {
         assert!(path.starts_with(&home));
         assert_eq!(path.file_name().unwrap(), "vault.pwm");
     }
+
+    #[test]
+    fn test_default_vault_path_parent_is_dot_passwm() {
+        let path = default_vault_path().unwrap();
+        let parent = path.parent().unwrap();
+
+        assert_eq!(parent.file_name().unwrap(), ".passwm");
+    }
 }
