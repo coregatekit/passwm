@@ -40,4 +40,15 @@ mod test {
 
         assert_eq!(resolved, PathBuf::from(custom));
     }
+
+    /// --- default_vault_path -----------------------------
+
+    #[test]
+    fn test_default_vault_path_is_under_home() {
+        let path = default_vault_path().unwrap();
+        let home = dirs::home_dir().unwrap();
+
+        assert!(path.starts_with(&home));
+        assert_eq!(path.file_name().unwrap(), "vault.pwm");
+    }
 }
