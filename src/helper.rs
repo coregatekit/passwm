@@ -48,6 +48,14 @@ mod test {
         assert_eq!(resolved, PathBuf::from(custom));
     }
 
+    #[test]
+    fn test_resolve_vault_path_defaults_to_home() {
+        // if no path provided, should return with .passwm/vault.pwm under home
+        let resolved = resolve_vault_path(None).unwrap();
+
+        assert!(resolved.ends_with(".passwm/vault.pwm"));
+    }
+
     /// --- default_vault_path -----------------------------
 
     #[test]
