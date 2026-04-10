@@ -36,3 +36,14 @@ pub fn cmd_get(vault: &Vault, service: &str) -> Result<()> {
     println!("🔑 Password : {}", entry.password);
     Ok(())
 }
+
+pub fn cmd_update(
+    vault: &mut Vault,
+    service: &str,
+    username: Option<String>,
+    password: Option<String>,
+) -> Result<()> {
+    vault.update(service, username, password)?;
+    println!("✅ Updated entry for '{service}'");
+    Ok(())
+}
