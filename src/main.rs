@@ -63,6 +63,14 @@ mod tests {
         vault::{PasswordEntry, Vault},
     };
 
+    fn make_entry(service: &str, username: &str, password: &str) -> PasswordEntry {
+        PasswordEntry {
+            service: service.to_string(),
+            username: username.to_string(),
+            password: password.to_string(),
+        }
+    }
+
     /// --- cmd_add tests ---
     #[test]
     fn test_cmd_add_inserts_entry() {
@@ -77,5 +85,19 @@ mod tests {
         cmd_add(&mut vault, "github".into(), "alice".into(), "s3cr3t".into()).unwrap();
         let result = cmd_add(&mut vault, "github".into(), "bob".into(), "passw0rd".into());
         assert!(result.is_err());
+    }
+
+    /// --- cmd_get tests ---
+    #[test]
+    fn test_cmd_get_existing_entry() {
+        let mut vault = Vault::new();
+        vault.add(make_entry("github", "alice", "s3cr3t")).unwrap();
+        assert!(cmd_get(&vault, "github").is_ok());
+    }
+
+    #[test]
+    fn test_cmd_get_nonexistent_fails() {
+        let vault = Vault::new();
+        assert!(cmd_get(&vault, "ghost").is_err());
     }
 }
