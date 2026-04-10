@@ -24,6 +24,13 @@ pub fn resolve_vault_path(vault_path: Option<String>) -> Result<PathBuf> {
     Ok(path)
 }
 
+/// Get default vault path: ~/.passwm/vault.pwm
+pub fn default_vault_path() -> Result<PathBuf> {
+    let home = dirs::home_dir()
+        .ok_or_else(|| PasswmError::StorageError("Cannot find home directory".to_string()))?;
+    Ok(home.join(".passwm").join("vault.pwm"))
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
