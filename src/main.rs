@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::Command};
+use std::path::PathBuf;
 
 use clap::Parser;
 use passwm::{
@@ -59,7 +59,7 @@ fn run() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use passwm::{
-        cmd::{self, cmd_add, cmd_get},
+        cmd::{self, cmd_add, cmd_get, cmd_update},
         vault::{PasswordEntry, Vault},
     };
 
@@ -99,5 +99,21 @@ mod tests {
     fn test_cmd_get_nonexistent_fails() {
         let vault = Vault::new();
         assert!(cmd_get(&vault, "ghost").is_err());
+    }
+
+    /// --- cmd_update tests ---
+    #[test]
+    fn test_cmd_update_password_only() {
+        let mut vault = Vault::new();
+        vault.add(make_entry("github", "alice", "old")).unwrap();
+        cmd_update(&mut vault, "github", None, Some("new_pass".into())).unwrap();
+        assert_eq!(vault.get("github").unwrap().password, "new_pass");
+    }
+
+    #[test]
+    fn test_cmd_update_nonexistent_fails() {
+        let mut vault = Vault::new();
+        let result = cmd_update(&mut vault, "ghost", None, Some("pass".into()));
+        assert!(result.is_err());
     }
 }
