@@ -1,6 +1,19 @@
-use std::{io::Write, path::PathBuf};
+use std::{
+    io::Write,
+    path::PathBuf,
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
+    thread,
+    time::Duration,
+};
+
+use arboard::Clipboard;
 
 use crate::error::{PasswmError, Result};
+
+pub const CLIPBOARD_CLEAR_TIMEOUT: u64 = 30; // seconds
 
 /// stdin helper functions
 pub fn prompt_password(prompt: &str) -> Result<String> {
@@ -38,6 +51,41 @@ pub fn default_vault_path() -> Result<PathBuf> {
         .ok_or_else(|| PasswmError::StorageError("Cannot find home directory".to_string()))?;
     Ok(home.join(".passwm").join("vault.pwm"))
 }
+
+/// Clipboard helper functions
+pub fn copy_to_clipboard_with_clear(password: &str) -> Result<()> {
+    let mut clipboard = Clipboard::new().map_err(|e| PasswmError::StorageError(e.to_string()))?;
+    clipboard
+        .set_text(password.to_string())
+        .map_err(|e| PasswmError::StorageError(e.to_string()))?;
+
+    println!(
+        "📋 Password copied to clipboard. Will be cleared in {} seconds.",
+        CLIPBOARD_CLEAR_TIMEOUT
+    );
+
+    let cleared = Arc::new(AtomicBool::new(false));
+    let cleared_clone = Arc::clone(&cleared);
+    let password_copy = password.to_string();
+
+    thread::spawn(move || {
+        thread::sleep(Duration::from_secs(CLIPBOARD_CLEAR_TIMEOUT));
+
+        if let Ok(mut cb) = Clipboard::new() {
+            if let Ok(current) = cb.get_text() {
+                if current == password_copy {
+                    let _ = cb.set_text(String::new());
+                    println!("\n🔒 Clipboard cleared.");
+                }
+            }
+        }
+        cleared_clone.store(true, Ordering::Relaxed);
+    });
+
+    Ok(())
+}
+
+/// Copy password to clipboard and spawn background thread to clear it after 30 seconds
 
 #[cfg(test)]
 mod test {
