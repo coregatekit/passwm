@@ -1,11 +1,9 @@
-use std::path::PathBuf;
-
 use clap::Parser;
 use passwm::{
     cli::{Cli, Commands},
     cmd::{cmd_add, cmd_delete, cmd_get, cmd_list, cmd_search, cmd_update},
     error::Result,
-    helper::prompt_password,
+    helper::{prompt_password, resolve_vault_path},
     storage::{load_vault, save_vault, vault_exists},
     vault::Vault,
 };
@@ -19,7 +17,7 @@ fn main() {
 
 fn run() -> Result<()> {
     let cli = Cli::parse();
-    let vault_path = PathBuf::from(&cli.vault_path);
+    let vault_path = resolve_vault_path(cli.vault_path)?;
 
     let master_password = prompt_password("🔑 Enter maste password: ")?;
 
