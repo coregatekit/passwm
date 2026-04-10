@@ -53,3 +53,17 @@ pub fn cmd_delete(vault: &mut Vault, service: &str) -> Result<()> {
     println!("🗑️ Deleted entry for '{service}'");
     Ok(())
 }
+
+pub fn cmd_search(vault: &Vault, query: &str) {
+    let results = vault.search(query);
+    if results.is_empty() {
+        println!("🔍 No entries found matching '{query}'.");
+        return;
+    }
+    println!("🔍 Found {} result(s):", results.len());
+    println!("{:<20} {:<30}", "SERVICE", "USERNAME");
+    println!("{}", "-".repeat(50));
+    for entry in results {
+        println!("{:<20} {:<30}", entry.service, entry.username);
+    }
+}
