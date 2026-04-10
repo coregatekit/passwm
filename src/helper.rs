@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::{io::Write, path::PathBuf};
 
 use crate::error::{PasswmError, Result};
 
@@ -9,4 +9,28 @@ pub fn prompt_password(prompt: &str) -> Result<String> {
         .flush()
         .map_err(|e| PasswmError::StorageError(e.to_string()))?;
     rpassword::read_password().map_err(|e| PasswmError::StorageError(e.to_string()))
+}
+
+/// Resolve vault path
+/// - if user provides --vault-path option, use that
+/// - otherwise, use default path ~/.passwm/vault.pwm
+/// - create parent directory if it doesn't exist
+pub fn resolve_vault_path(vault_path: Option<String>) -> Result<PathBuf> {}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::path::PathBuf;
+
+    /// resolve_vault_path -----------------------------
+
+    #[test]
+    fn test_resolve_vault_path_uses_provided_path() {
+        let dir = tempfile::tempdir().unwrap();
+        let custom = dir.path().join("custom.pwm").to_str().unwrap().to_string();
+
+        let resolved = resolve_vault_path(Some(custom.clone())).unwrap();
+
+        assert_eq!(resolved, PathBuf::from(custom));
+    }
 }
