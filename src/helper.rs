@@ -21,6 +21,14 @@ pub fn resolve_vault_path(vault_path: Option<String>) -> Result<PathBuf> {
         None => default_vault_path()?,
     };
 
+    if let Some(parent) = path.parent() {
+        if !parent.exists() {
+            std::fs::create_dir_all(parent)
+                .map_err(|e| PasswmError::StorageError(e.to_string()))?;
+            println!("📁 Created vault directory: {}", parent.display());
+        }
+    }
+
     Ok(path)
 }
 
