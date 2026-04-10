@@ -56,6 +56,16 @@ mod test {
         assert!(resolved.ends_with(".passwm/vault.pwm"));
     }
 
+    #[test]
+    fn test_resolve_vault_path_creates_directory() {
+        let dir = tempfile::tempdir().unwrap();
+        let new_dir = dir.path().join("new_subdir").join("vault.pwm");
+
+        resolve_vault_path(Some(new_dir.to_str().unwrap().to_string())).unwrap();
+
+        assert!(dir.path().join("new_subdir").exists());
+    }
+
     /// --- default_vault_path -----------------------------
 
     #[test]
