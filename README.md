@@ -4,91 +4,153 @@ A CLI-based password management tool built with Rust that lets you securely stor
 
 ## Features
 
-- **Add Password** – Store a new password entry with a service name, username, and password.
-- **List Passwords** – Display all stored password entries (service names and usernames only).
-- **Get Password** – Retrieve the password for a specific service.
-- **Update Password** – Update the username or password for an existing entry.
-- **Delete Password** – Remove a stored password entry.
-- **Search** – Search for entries by service name or username.
-- **Encryption** – All passwords are encrypted at rest using strong symmetric encryption.
-- **Master Password** – Protect your vault with a single master password.
+- Add / List / Get / Update / Delete / Search password entries
+- AES-256-GCM encryption at rest
+- Argon2id key derivation from master password
+- Default vault stored at `~/.passwm/vault.pwm` (auto-created on first run)
+- Password copied to clipboard on `get`, auto-cleared after 30 seconds
+- Master password prompt (hidden input — never echoed to terminal)
+- Custom vault path via `--vault-path`
 
-## Planned Software Design
-
-> **Note:** The Rust implementation has not been added to the repository yet. The module layout and architecture below describe the intended design.
+## Architecture
 
 ```text
-passwm/             (planned)
-├── src/
-│   ├── main.rs          # CLI entry point and command routing
-│   ├── cli.rs           # CLI argument and subcommand definitions
-│   ├── vault.rs         # Password vault (add, list, get, update, delete, search)
-│   ├── crypto.rs        # Encryption and decryption helpers
-│   └── storage.rs       # Persistent storage (read/write vault file)
-├── Cargo.toml
-└── README.md
+User Input (terminal)
+        │
+        ▼
+   helper.rs   ── resolve_vault_path() · prompt_password() · copy_to_clipboard_with_clear()
+        │
+        ▼
+    main.rs    ── parse CLI → load/save vault → route command
+        │
+   ┌────┴────┐
+   ▼         ▼
+ cli.rs    cmd.rs   ── argument definitions · command handlers
+              │
+              ▼
+           vault.rs  ── in-memory CRUD
+              │
+       ┌──────┴──────┐
+       ▼             ▼
+   crypto.rs     storage.rs  ── encrypt/decrypt · read/write disk
 ```
 
-### Architecture Overview
+| File | Responsibility |
+|---|---|
+| `main.rs` | Entry point, wires all modules together |
+| `cli.rs` | clap CLI argument and subcommand definitions |
+| `cmd.rs` | Command handlers with terminal output |
+| `vault.rs` | In-memory vault CRUD operations |
+| `crypto.rs` | Argon2id KDF + AES-256-GCM encrypt/decrypt |
+| `storage.rs` | Serialize vault → encrypt → persist to disk |
+| `helper.rs` | Password prompt, vault path resolution, clipboard |
+| `error.rs` | Custom `PasswmError` enum and `Result<T>` alias |
 
-```text
-User Input (CLI)
-      │
-      ▼
-  cli.rs  ──► Parses commands and arguments
-      │
-      ▼
-  vault.rs ──► Business logic (CRUD operations on password entries)
-      │
-      ├──► crypto.rs  ──► Encrypts / decrypts password data
-      │
-      └──► storage.rs ──► Reads / writes the encrypted vault file
-```
+## Prerequisites
 
-Design goal: The vault will be stored as a single encrypted file on disk. The master password will be used to derive an encryption key (via a key-derivation function), which will then be used to encrypt and decrypt the vault contents. Plaintext passwords are not intended to be written to disk.
+- **Rust toolchain (stable)** — install via <https://rustup.rs>
+- **Linux only**: `libxcb` development libraries (required by the `arboard` clipboard crate)
 
 ## Installation
 
-> **Note:** The Rust implementation of `passwm` is not yet published in this repository. There is no installable CLI binary at this time; the layout and commands shown below describe the planned design. Installation instructions will be added once the Rust sources and `Cargo.toml` are available.
+### Linux
 
-<!--
-Planned installation options (once the Rust project is added):
+```bash
+# Install clipboard dependencies (required by arboard)
+# Ubuntu / Debian:
+sudo apt-get update
+sudo apt-get install -y libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
+# Fedora / RHEL:  sudo dnf install libxcb-devel
+# Arch Linux:     sudo pacman -S libxcb
 
-- From source:
-  ```bash
-  git clone https://github.com/coregatekit/passwm.git
-  cd passwm
-  cargo install --path .
-  ```
+# Clone and build
+git clone https://github.com/coregatekit/passwm.git
+cd passwm
+cargo build --release
 
-- From crates.io (planned):
-  ```bash
-  cargo install passwm
-  ```
--->
+# Install to PATH
+cargo install --path .
+```
 
-## Planned Usage
+### macOS (Intel)
 
-> **Note:** The following examples show the target CLI syntax once the tool is implemented. They do not reflect working commands in the current repository.
+```bash
+git clone https://github.com/coregatekit/passwm.git
+cd passwm
+cargo build --release
+
+# Install to PATH
+cargo install --path .
+```
+
+### macOS (Apple Silicon — M1/M2/M3)
+
+```bash
+git clone https://github.com/coregatekit/passwm.git
+cd passwm
+cargo build --release --target aarch64-apple-darwin
+
+# Install to PATH
+cargo install --path . --target aarch64-apple-darwin
+```
+
+### Windows
+
+```powershell
+git clone https://github.com/coregatekit/passwm.git
+cd passwm
+cargo build --release
+
+# Install to PATH
+cargo install --path .
+```
+
+After `cargo install --path .`, the `passwm` binary will be available system-wide in `~/.cargo/bin/`.
+
+## Usage
 
 ```bash
 # Add a new password entry
 passwm add --service github --username alice --password s3cr3t
 
-# List all stored entries
+# List all stored entries (shows service and username only, no passwords)
 passwm list
 
-# Get the password for a service
+# Get the password for a service (also copies to clipboard, clears after 30s)
 passwm get --service github
 
-# Update an existing entry
+# Update an existing entry (username and/or password)
 passwm update --service github --password new_s3cr3t
+passwm update --service github --username new_alice --password new_s3cr3t
 
 # Delete an entry
 passwm delete --service github
 
-# Search for entries
+# Search entries by service name or username
 passwm search --query git
+
+# Use a custom vault path
+passwm --vault-path /path/to/my.pwm list
+```
+
+## Vault File Location
+
+- **Default**: `~/.passwm/vault.pwm`
+- The directory `~/.passwm/` is created automatically on first run
+- Can be overridden with `--vault-path <PATH>`
+
+## Security Notes
+
+- Master password is **never stored** — it is used only to derive the AES-256 encryption key via Argon2id
+- Each save generates a **fresh random salt** → ciphertext differs on every save even for the same data
+- AES-256-GCM provides both **confidentiality and integrity** — any tampering is detected on load
+- Sensitive keys are held in `Zeroizing<T>` and wiped from memory on drop
+- Clipboard is automatically cleared after 30 seconds
+
+## Running Tests
+
+```bash
+cargo test
 ```
 
 ## License
