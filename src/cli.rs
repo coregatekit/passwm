@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 pub struct Cli {
     /// Path to vault file (default: ~/.passwm/vault.pwm)
     #[arg(long, global = true, default_value = "vault.pwm")]
-    pub vault_path: String,
+    pub vault_path: Option<String>,
 
     #[command(subcommand)]
     pub command: Commands,
