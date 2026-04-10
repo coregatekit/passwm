@@ -15,14 +15,21 @@ pub fn prompt_password(prompt: &str) -> Result<String> {
 /// - if user provides --vault-path option, use that
 /// - otherwise, use default path ~/.passwm/vault.pwm
 /// - create parent directory if it doesn't exist
-pub fn resolve_vault_path(vault_path: Option<String>) -> Result<PathBuf> {}
+pub fn resolve_vault_path(vault_path: Option<String>) -> Result<PathBuf> {
+    let path = match vault_path {
+        Some(p) => PathBuf::from(p),
+        None => "".into(),
+    };
+
+    Ok(path)
+}
 
 #[cfg(test)]
 mod test {
     use super::*;
     use std::path::PathBuf;
 
-    /// resolve_vault_path -----------------------------
+    /// --- resolve_vault_path -----------------------------
 
     #[test]
     fn test_resolve_vault_path_uses_provided_path() {
