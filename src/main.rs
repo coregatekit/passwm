@@ -59,7 +59,7 @@ fn run() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use passwm::{
-        cmd::{self, cmd_add, cmd_get, cmd_update},
+        cmd::{cmd_add, cmd_delete, cmd_get, cmd_update},
         vault::{PasswordEntry, Vault},
     };
 
@@ -115,5 +115,20 @@ mod tests {
         let mut vault = Vault::new();
         let result = cmd_update(&mut vault, "ghost", None, Some("pass".into()));
         assert!(result.is_err());
+    }
+
+    /// --- cmd_delete tests ---
+    #[test]
+    fn test_cmd_delete_removes_entry() {
+        let mut vault = Vault::new();
+        vault.add(make_entry("github", "alice", "pass")).unwrap();
+        cmd_delete(&mut vault, "github").unwrap();
+        assert!(vault.get("github").is_err());
+    }
+
+    #[test]
+    fn test_cmd_delete_nonexistent_fails() {
+        let mut vault = Vault::new();
+        assert!(cmd_delete(&mut vault, "ghost").is_err());
     }
 }
