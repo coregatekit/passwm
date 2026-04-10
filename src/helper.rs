@@ -18,7 +18,7 @@ pub fn prompt_password(prompt: &str) -> Result<String> {
 pub fn resolve_vault_path(vault_path: Option<String>) -> Result<PathBuf> {
     let path = match vault_path {
         Some(p) => PathBuf::from(p),
-        None => "".into(),
+        None => default_vault_path()?,
     };
 
     Ok(path)
