@@ -47,3 +47,9 @@ pub fn cmd_update(
     println!("✅ Updated entry for '{service}'");
     Ok(())
 }
+
+pub fn cmd_delete(vault: &mut Vault, service: &str) -> Result<()> {
+    vault.delete(service)?;
+    println!("🗑️ Deleted entry for '{service}'");
+    Ok(())
+}
