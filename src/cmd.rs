@@ -1,4 +1,5 @@
 use crate::error::Result;
+use crate::helper::copy_to_clipboard_with_clear;
 use crate::vault::{PasswordEntry, Vault};
 
 pub fn cmd_add(
@@ -34,6 +35,9 @@ pub fn cmd_get(vault: &Vault, service: &str) -> Result<()> {
     println!("🔐 Service  : {}", entry.service);
     println!("👤 Username : {}", entry.username);
     println!("🔑 Password : {}", entry.password);
+
+    copy_to_clipboard_with_clear(&entry.password)?;
+
     Ok(())
 }
 
