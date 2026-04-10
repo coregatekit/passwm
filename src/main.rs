@@ -55,3 +55,27 @@ fn run() -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use passwm::{
+        cmd::{self, cmd_add, cmd_get},
+        vault::{PasswordEntry, Vault},
+    };
+
+    /// --- cmd_add tests ---
+    #[test]
+    fn test_cmd_add_inserts_entry() {
+        let mut vault = Vault::new();
+        cmd_add(&mut vault, "github".into(), "alice".into(), "s3cr3t".into()).unwrap();
+        assert!(vault.get("github").is_ok());
+    }
+
+    #[test]
+    fn test_cmd_add_duplicate_fails() {
+        let mut vault = Vault::new();
+        cmd_add(&mut vault, "github".into(), "alice".into(), "s3cr3t".into()).unwrap();
+        let result = cmd_add(&mut vault, "github".into(), "bob".into(), "passw0rd".into());
+        assert!(result.is_err());
+    }
+}
