@@ -28,3 +28,11 @@ pub fn cmd_list(vault: &Vault) {
         println!("{:<20} {:<30}", service, username);
     }
 }
+
+pub fn cmd_get(vault: &Vault, service: &str) -> Result<()> {
+    let entry = vault.get(service)?;
+    println!("🔐 Service  : {}", entry.service);
+    println!("👤 Username : {}", entry.username);
+    println!("🔑 Password : {}", entry.password);
+    Ok(())
+}
